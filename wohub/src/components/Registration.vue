@@ -1,48 +1,77 @@
-<template>
-  <form @submit.prevent="handleSubmit">
-    <div class="mb-3">
-      <label>Email</label>
-      <input type="email" v-model="email" class="form-control" required>
-      <small v-if="emailError" class="text-danger">{{ emailError }}</small>
-    </div>
-    <div class="mb-3">
-      <label>Password</label>
-      <input type="password" v-model="password" class="form-control" required minlength="6">
-      <small v-if="passwordError" class="text-danger">{{ passwordError }}</small>
-    </div>
-    <button type="submit" class="btn btn-primary">Register</button>
-  </form>
-</template>
-
-<script>
+<script setup>
 import { ref } from 'vue'
 
-export default {
-  setup() {
-    const email = ref('')
-    const password = ref('')
-    const emailError = ref('')
-    const passwordError = ref('')
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const errors = ref({})
 
-    const handleSubmit = () => {
-      emailError.value = ''
-      passwordError.value = ''
+// 简单验证函数
+function validateForm() {
+  errors.value = {}
 
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailPattern.test(email.value)) {
-        emailError.value = 'Invalid email format'
-      }
-      if (password.value.length < 6) {
-        passwordError.value = 'Password must be at least 6 characters'
-      }
+  if (!name.value) {
+    errors.value.name = 'Name is required'
+  }
 
-      if (!emailError.value && !passwordError.value) {
-        alert('Form submitted!')
-        // TODO: send data to backend
-      }
-    }
+  // Email 格式验证
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!email.value) {
+    errors.value.email = 'Email is required'
+  } else if (!emailPattern.test(email.value)) {
+    errors.value.email = 'Invalid email format'
+  }
 
-    return { email, password, emailError, passwordError, handleSubmit }
+  // 密码长度验证
+  if (!password.value) {
+    errors.value.password = 'Password is required'
+  } else if (password.value.length < 6) {
+    errors.value.password = 'Password must be at least 6 characters'
+  }
+
+  if (Object.keys(errors.value).length === 0) {
+    alert('✅ Registration successful!')
   }
 }
 </script>
+
+<template>
+  <section class="registration">
+    <h2>Register</h2>
+    <form @submit.prevent="validateForm">
+      <div>
+        <label>Name:</label>
+        <input v-model="name" type="text" />
+        <p v-if="errors.name" class="error">{{ errors.name }}</p>
+      </div>
+
+      <div>
+        <label>Email:</label>
+        <input v-model="email" type="email" />
+        <p v-if="errors.email" class="error">{{ errors.email }}</p>
+      </div>
+
+      <div>
+        <label>Password:</label>
+        <input v-model="password" type="password" />
+        <p v-if="errors.password" class="error">{{ errors.password }}</p>
+      </div>
+
+      <button type="submit">Sign Up</button>
+    </form>
+  </section>
+</template>
+
+<style scoped>
+.registration {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.error {
+  color: red;
+  font-size: 0.9rem;
+}
+</style>
