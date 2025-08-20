@@ -1,4 +1,6 @@
 [
-  { "id": 1, "title": "Understanding Your Body", "category": "Body" },
-  { "id": 2, "title": "Managing Stress", "category": "Mental Health" }
+  { "id": 1, "title": "Healthy Living Tips", "summary": "Daily habits for better well-being." },
+  { "id": 2, "title": "Understanding Mental Health", "summary": "Breaking the stigma and supporting each other." },
+  { "id": 3, "title": "Nutrition for Women", "summary": "How to eat right for different life stages." },
+  { "id": 4, "title": "Exercise and Fitness", "summary": "Staying active at every age." }
 ]

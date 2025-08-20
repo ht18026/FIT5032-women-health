@@ -3,14 +3,10 @@ import { ref } from "vue";
 import Featured from "./components/Featured.vue";
 import Registration from "./components/Registration.vue";
 import Login from "./components/Login.vue"; 
-
+import articles from "./assets/json/articles.json";
 const authMode = ref(null); 
 
-const articles = [
-  { id: 1, title: "Healthy Living Tips", summary: "Daily habits for better well-being." },
-  { id: 2, title: "Understanding Mental Health", summary: "Breaking the stigma and supporting each other." },
-  { id: 3, title: "Nutrition for Women", summary: "How to eat right for different life stages." }
-];
+
 </script>
 
 <template>
