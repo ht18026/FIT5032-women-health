@@ -2,8 +2,9 @@
 import { ref } from "vue";
 import Featured from "./components/Featured.vue";
 import Registration from "./components/Registration.vue";
+import Login from "./components/Login.vue"; 
 
-const showRegistration = ref(false);
+const authMode = ref(null); 
 
 const articles = [
   { id: 1, title: "Healthy Living Tips", summary: "Daily habits for better well-being." },
@@ -23,7 +24,6 @@ const articles = [
         <li><a href="#">Resources</a></li>
         <li><a href="#">Help</a></li>
       </ul>
-      <button class="login-btn">Login</button>
     </nav>
   </header>
 
@@ -31,19 +31,32 @@ const articles = [
     <section class="welcome-section text-center">
       <h1>Welcome to WoHub</h1>
       
-      <div v-if="!showRegistration">
+      <div v-if="!authMode">
         <p class="intro-text">
           WoHub is a safe and supportive space for women of all ages.  
           Here you can explore trusted health information, share stories, and access community resources.  
           Join us in creating a healthier and happier future together.
         </p>
         <div class="actions">
-          <button class="action-btn" @click="showRegistration = true">Register</button>
+          <button class="action-btn" @click="authMode = 'login'">Login</button>
+          <button class="action-btn" @click="authMode = 'register'">Register</button>
         </div>
       </div>
 
-      <div v-else>
+      <div v-else-if="authMode === 'login'">
+        <Login />
+        <p class="switch-text">
+          Don't have an account?  
+          <a href="#" @click.prevent="authMode = 'register'">Register here</a>
+        </p>
+      </div>
+
+      <div v-else-if="authMode === 'register'">
         <Registration />
+        <p class="switch-text">
+          Already have an account?  
+          <a href="#" @click.prevent="authMode = 'login'">Login here</a>
+        </p>
       </div>
     </section>
 
@@ -54,13 +67,13 @@ const articles = [
   </main>
 
   <footer class="text-center">
-    <p>&copy; 2023 WoHub. All rights reserved.</p>
+    <p>&copy; 2025 WoHub. All rights reserved.</p>
   </footer>
 </template>
 
 <style scoped>
 header {
-  background-color: #A5D6A7; 
+  background-color: #A5D6A7;
   padding: 15px 30px;
 }
 
@@ -68,12 +81,15 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; 
 }
 
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
 }
 
 .nav-links a {
@@ -81,18 +97,9 @@ nav {
   color: #333;
 }
 
-.login-btn {
-  background-color: #81C784;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 .welcome-section {
   padding: 30px;
-  background: #F1F8E9; 
+  background: #F1F8E9;
   border-radius: 12px;
   margin: 20px;
 }
@@ -103,6 +110,12 @@ nav {
   color: #444;
 }
 
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
 .action-btn {
   background-color: #66BB6A;
   color: white;
@@ -110,12 +123,23 @@ nav {
   padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
   transition: background 0.3s ease;
 }
 
 .action-btn:hover {
   background-color: #4CAF50;
+}
+
+.switch-text {
+  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.switch-text a {
+  color: #388E3C;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .featured-articles {
