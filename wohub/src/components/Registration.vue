@@ -1,33 +1,68 @@
 <script setup>
 import { ref } from 'vue'
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const errors = ref({})
+const formData = ref({
+  name: '',
+  email: '',
+  password: ''
+})
 
-function validateForm() {
-  errors.value = {}
+const errors = ref({
+  name: null,
+  email: null,
+  password: null,
+})
 
-  if (!name.value) {
+const validateName = (blur) => {
+  if (blur && !formData.value.name.trim()) {
     errors.value.name = 'Name is required'
+  } else {
+    errors.value.name = null
   }
+}
 
+const validateEmail = (blur) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!email.value) {
+  if (blur && !formData.value.email) {
     errors.value.email = 'Email is required'
-  } else if (!emailPattern.test(email.value)) {
+  } else if (blur && !emailPattern.test(formData.value.email)) {
     errors.value.email = 'Invalid email format'
+  } else {
+    errors.value.email = null
   }
+}
 
-  if (!password.value) {
-    errors.value.password = 'Password is required'
-  } else if (password.value.length < 6) {
-    errors.value.password = 'Password must be at least 6 characters'
+const validatePassword = (blur) => {
+  const password = formData.value.password
+  const minLength = 8
+  const hasUpperCase = /[A-Z]/.test(password)
+  const hasLowerCase = /[a-z]/.test(password)
+  const hasNumber = /\d/.test(password)
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+  if (blur && password.length < minLength) {
+    errors.value.password = `Password must be at least ${minLength} characters long`
+  } else if (blur && !hasUpperCase) {
+    errors.value.password = 'Password must contain at least one uppercase letter'
+  } else if (blur && !hasLowerCase) {
+    errors.value.password = 'Password must contain at least one lowercase letter'
+  } else if (blur && !hasNumber) {
+    errors.value.password = 'Password must contain at least one number'
+  } else if (blur && !hasSpecialChar) {
+    errors.value.password = 'Password must contain at least one special character'
+  } else {
+    errors.value.password = null
   }
+}
 
-  if (Object.keys(errors.value).length === 0) {
+const submitForm = () => {
+  validateName(true)
+  validateEmail(true)
+  validatePassword(true)
+
+  if (!errors.value.name && !errors.value.email && !errors.value.password) {
     alert('✅ Registration successful!')
+    formData.value = { name: '', email: '', password: '' }
   }
 }
 </script>
@@ -35,22 +70,40 @@ function validateForm() {
 <template>
   <section class="registration">
     <h2>Register</h2>
-    <form @submit.prevent="validateForm">
+    <form @submit.prevent="submitForm">
+      <!-- Name -->
       <div>
         <label>Name:</label>
-        <input v-model="name" type="text" />
+        <input 
+          v-model="formData.name" 
+          type="text"
+          @input="() => validateName(false)"
+          @blur="() => validateName(true)" 
+        />
         <p v-if="errors.name" class="error">{{ errors.name }}</p>
       </div>
 
+      <!-- Email -->
       <div>
         <label>Email:</label>
-        <input v-model="email" type="email" />
+        <input 
+          v-model="formData.email" 
+          type="email"
+          @input="() => validateEmail(false)"
+          @blur="() => validateEmail(true)" 
+        />
         <p v-if="errors.email" class="error">{{ errors.email }}</p>
       </div>
 
+      <!-- Password -->
       <div>
         <label>Password:</label>
-        <input v-model="password" type="password" />
+        <input 
+          v-model="formData.password" 
+          type="password"
+          @input="() => validatePassword(false)"
+          @blur="() => validatePassword(true)" 
+        />
         <p v-if="errors.password" class="error">{{ errors.password }}</p>
       </div>
 
