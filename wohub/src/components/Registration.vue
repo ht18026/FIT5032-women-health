@@ -6,7 +6,6 @@ const email = ref('')
 const password = ref('')
 const errors = ref({})
 
-// 简单验证函数
 function validateForm() {
   errors.value = {}
 
@@ -14,7 +13,6 @@ function validateForm() {
     errors.value.name = 'Name is required'
   }
 
-  // Email 格式验证
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!email.value) {
     errors.value.email = 'Email is required'
@@ -22,7 +20,6 @@ function validateForm() {
     errors.value.email = 'Invalid email format'
   }
 
-  // 密码长度验证
   if (!password.value) {
     errors.value.password = 'Password is required'
   } else if (password.value.length < 6) {
