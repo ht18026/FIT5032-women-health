@@ -121,7 +121,7 @@ const submitForm = () => {
   border-radius: 8px;
 }
 .error {
-  color: red;
+  color: rgba(255, 115, 0, 0.918);
   font-size: 0.9rem;
 }
 </style>
