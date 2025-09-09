@@ -1,65 +1,19 @@
 <script setup>
 import { ref } from "vue";
-import Featured from "./components/Featured.vue";
-import Registration from "./components/Registration.vue";
-import Login from "./components/Login.vue"; 
-import articles from "./assets/json/articles.json";
-const authMode = ref(null); 
+
+import Header from './components/Header.vue';
+
 
 
 </script>
 
 <template>
   <header>
-    <nav>
-      <h1 class="logo">Wohub</h1>
-      <ul class="nav-links">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Info Hub</a></li>
-        <li><a href="#">Forum</a></li>
-        <li><a href="#">Resources</a></li>
-        <li><a href="#">Help</a></li>
-      </ul>
-    </nav>
+     <Header />
   </header>
 
   <main>
-    <section class="welcome-section text-center">
-      <h1>Welcome to WoHub</h1>
-      
-      <div v-if="!authMode">
-        <p class="intro-text">
-          WoHub is a safe and supportive space for women of all ages.  
-          Here you can explore trusted health information, share stories, and access community resources.  
-          Join us in creating a healthier and happier future together.
-        </p>
-        <div class="actions">
-          <button class="action-btn" @click="authMode = 'login'">Login</button>
-          <button class="action-btn" @click="authMode = 'register'">Register</button>
-        </div>
-      </div>
-
-      <div v-else-if="authMode === 'login'">
-        <Login />
-        <p class="switch-text">
-          Don't have an account?  
-          <a href="#" @click.prevent="authMode = 'register'">Register here</a>
-        </p>
-      </div>
-
-      <div v-else-if="authMode === 'register'">
-        <Registration />
-        <p class="switch-text">
-          Already have an account?  
-          <a href="#" @click.prevent="authMode = 'login'">Login here</a>
-        </p>
-      </div>
-    </section>
-
-    <section class="featured-articles">
-      <h2>Featured Articles</h2>
-      <Featured :articles="articles" />
-    </section>
+    <router-view></router-view>
   </main>
 
   <footer class="text-center">
