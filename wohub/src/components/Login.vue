@@ -28,9 +28,12 @@
     </form>
   </div>
 </template>
-
 <script setup>
 import { ref } from "vue";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
+const emit = defineEmits(["loginSuccess"]);
+const auth = getAuth();
 
 const formData = ref({
   email: "",
@@ -83,9 +86,22 @@ const submitLogin = () => {
   validatePassword(true);
 
   if (!errors.value.email && !errors.value.password) {
-    alert(`✅ Logged in as ${formData.value.email}`);
-    // Todo: Handle actual login logic here, e.g., API call
-    formData.value = { email: "", password: "" }; // Clear form after successful login
+    signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("Successfully logged in as", user.email);
+        alert("Login successful!");
+        emit("loginSuccess"); 
+
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Login failed:", errorCode, errorMessage);
+
+        // Optional: map Firebase error to user-friendly message
+        errors.value.email = "Login failed. Please check your credentials.";
+      });
   }
 };
 </script>

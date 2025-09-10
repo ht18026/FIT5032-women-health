@@ -6,6 +6,7 @@ import Featured from "../components/Featured.vue";
 import Registration from "../components/Registration.vue";
 import Login from "../components/Login.vue"; 
 const authMode = ref(null); 
+
 </script>
 
 <template>
@@ -24,21 +25,15 @@ const authMode = ref(null);
         </div>
       </div>
 
-      <div v-else-if="authMode === 'login'">
-        <Login />
-        <p class="switch-text">
-          Don't have an account?  
-          <a href="#" @click.prevent="authMode = 'register'">Register here</a>
-        </p>
-      </div>
+      <Login 
+      v-else-if="authMode === 'login'" 
+      @loginSuccess="authMode = null" 
+      />
 
-      <div v-else-if="authMode === 'register'">
-        <Registration />
-        <p class="switch-text">
-          Already have an account?  
-          <a href="#" @click.prevent="authMode = 'login'">Login here</a>
-        </p>
-      </div>
+      <Registration 
+      v-else-if="authMode === 'register'" 
+      @switchToLogin="authMode = 'login'" 
+      />
     </section>
 
     <section class="featured-articles">

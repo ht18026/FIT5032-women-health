@@ -26,5 +26,10 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+*.pdf
+*.zip
 
 *.tsbuildinfo
+
+# Environment variables
+.env
