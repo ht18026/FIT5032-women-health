@@ -30,7 +30,7 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 const emit = defineEmits(["loginSuccess"]);
 const auth = getAuth();
@@ -86,20 +86,24 @@ const submitLogin = () => {
   validatePassword(true);
 
   if (!errors.value.email && !errors.value.password) {
-    signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        return signInWithEmailAndPassword(
+          auth,
+          formData.value.email,
+          formData.value.password
+        );
+      })
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log("Successfully logged in as", user.email);
+        console.log("✅ Successfully logged in as", user.email);
         alert("Login successful!");
-        emit("loginSuccess"); 
-
+        emit("loginSuccess");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.error("Login failed:", errorCode, errorMessage);
-
-        // Optional: map Firebase error to user-friendly message
+        console.error("❌ Login failed:", errorCode, errorMessage);
         errors.value.email = "Login failed. Please check your credentials.";
       });
   }

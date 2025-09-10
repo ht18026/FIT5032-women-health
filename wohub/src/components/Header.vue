@@ -1,12 +1,31 @@
+<script setup>
+import { auth, currentUser, authIsReady } from "@/firebase/auth";
+import { signOut } from "firebase/auth";
+import { computed } from "vue";
+
+const userEmail = computed(() => currentUser.value?.email ?? "");
+const showUserMenu = computed(() => {
+  return authIsReady.value && !!currentUser.value;
+});
+const logout = () => {
+  signOut(auth)
+    .then(() => {
+      alert("Logged out!");
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+    });
+};
+console.log("authIsReady.value:", authIsReady.value);
+console.log("currentUser.value:", currentUser.value);
+</script>
+
 <template>
-  <!-- Using Bootstrap's Header template (starter code) -->
-  <!-- https://getbootstrap.com/docs/5.0/examples/headers/ -->
   <div class="container">
     <header class="d-flex justify-content-center py-3">
-      <ul class="nav nav-pills">
+      <ul class="nav nav-pills align-items-center">
         <li class="nav-item">
-          <router-link to="/" class="nav-link" active-class="active" aria-current="page"
-            >Home</router-link>
+          <router-link to="/" class="nav-link" active-class="active">Home</router-link>
         </li>
         <li class="nav-item">
           <router-link to="/InfoHub" class="nav-link" active-class="active">Info Hub</router-link>
@@ -15,49 +34,26 @@
           <router-link to="/Forum" class="nav-link" active-class="active">Forum</router-link>
         </li>
         <li class="nav-item">
-            <router-link to="/Resources" class="nav-link" active-class="active">Resources</router-link>
+          <router-link to="/Resources" class="nav-link" active-class="active">Resources</router-link>
         </li>
         <li class="nav-item">
-            <router-link to="/Help" class="nav-link" active-class="active">Help</router-link>
+          <router-link to="/Help" class="nav-link" active-class="active">Help</router-link>
+        </li>
+
+        <li
+          class="nav-item dropdown ms-3"
+          v-if="showUserMenu"
+        >
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            👋 {{ userEmail }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <button class="dropdown-item" @click="logout">Logout</button>
+            </li>
+          </ul>
         </li>
       </ul>
     </header>
   </div>
 </template>
-
-<style scoped>
-.b-example-divider {
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border: solid rgba(0, 0, 0, 0.15);
-  border-width: 1px 0;
-  box-shadow:
-    inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-    inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
-}
-
-.form-control-dark {
-  color: #fff;
-  background-color: var(--bs-dark);
-  border-color: var(--bs-gray);
-}
-.form-control-dark:focus {
-  color: #fff;
-  background-color: var(--bs-dark);
-  border-color: #fff;
-  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
-}
-
-.bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
-}
-
-.text-small {
-  font-size: 85%;
-}
-
-.dropdown-toggle {
-  outline: 0;
-}
-</style>

@@ -1,10 +1,16 @@
-
 <script setup>
 import { ref } from "vue";
 import articles from "../assets/json/articles.json";
 import Featured from "../components/Featured.vue";
 import Registration from "../components/Registration.vue";
 import Login from "../components/Login.vue"; 
+import { currentUser, authIsReady } from "@/firebase/auth";
+import { computed } from "vue";
+
+const isLoggedIn = computed(() => {
+  return authIsReady.value && currentUser.value;
+});
+
 const authMode = ref(null); 
 
 </script>
@@ -19,7 +25,7 @@ const authMode = ref(null);
           Here you can explore trusted health information, share stories, and access community resources.  
           Join us in creating a healthier and happier future together.
         </p>
-        <div class="actions">
+        <div class="actions" v-if="!isLoggedIn">
           <button class="action-btn" @click="authMode = 'login'">Login</button>
           <button class="action-btn" @click="authMode = 'register'">Register</button>
         </div>
