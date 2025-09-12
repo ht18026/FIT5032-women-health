@@ -10,10 +10,10 @@ const showUserMenu = computed(() => {
 })
 
 // user role
-const role = ref("user") // 默认 user
+const role = ref("user") 
 onMounted(async () => {
   const r = await getCurrentUserRole()
-  role.value = r || "user" // 没查到就当 user
+  role.value = r || "user" 
 })
 
 // log out
