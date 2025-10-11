@@ -1,7 +1,7 @@
 <script setup>
 import { auth, currentUser, authIsReady } from "@/firebase/auth"
 import { signOut } from "firebase/auth"
-import { computed, ref, onMounted } from "vue"
+import { computed, ref, onMounted, watch } from "vue"
 import { getCurrentUserRole } from "@/firebase/auth"
 
 const userEmail = computed(() => currentUser.value?.email ?? "")
@@ -10,18 +10,22 @@ const showUserMenu = computed(() => {
 })
 
 // user role
-const role = ref("user") 
-onMounted(async () => {
-  const r = await getCurrentUserRole()
-  role.value = r || "user" 
-})
+const role = ref(null) 
+ watch(
+   currentUser,
+   async (u) => {
+     if (!u) { role.value = null; return }
+     role.value = await getCurrentUserRole()
+   },
+   { immediate: true }
+ )
 
 // log out
 const logout = () => {
   signOut(auth)
     .then(() => {
       alert("Logged out!")
-      role.value = "user"
+      role.value = null //empty role on logout
     })
     .catch((error) => {
       console.error("Logout error:", error)

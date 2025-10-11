@@ -17,6 +17,7 @@ let authReadyPromise = new Promise((resolve) => {
 });
 
 export const getCurrentUserRole = async () => {
+  await authReadyPromise;
   if (!currentUser.value) return null; 
 
   const docRef = doc(db, "users", currentUser.value.uid);

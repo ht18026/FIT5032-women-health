@@ -6,7 +6,7 @@ import ForumView from "@/views/ForumView.vue"
 import ResourcesView from "@/views/ResourcesView.vue"
 import HelpUserView from "@/views/HelpUserView.vue"
 import AdminDashboardView from "@/views/AdminDashboardView.vue"
-import { getCurrentUserRole } from "@/firebase/auth"
+import { authReadyPromise, getCurrentUserRole } from "@/firebase/auth"
 
 import InsertMockView from "@/views/InsertMockView.vue";
 
@@ -31,7 +31,8 @@ const router = createRouter({
 // route guard
 router.beforeEach(async (to, from, next) => {
   if (!to.meta.role) return next()
-
+    // wait for auth to be ready
+  await authReadyPromise
   const role = await getCurrentUserRole()
   console.log("🚦 navigating to:", to.path, "need:", to.meta.role, "have:", role)
 
