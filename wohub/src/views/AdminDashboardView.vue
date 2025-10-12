@@ -1,10 +1,10 @@
 <template>
   <div class="container mt-5">
     <h1>Admin Dashboard</h1>
-    <p>This is admin dashboard</p>
+    <SendEmailModal class="mt-4" />
   </div>
 </template>
 
 <script setup>
-// todo
+import SendEmailModal from "@/components/SendEmailModal.vue";
 </script>
