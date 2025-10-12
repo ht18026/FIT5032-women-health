@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
 import InfoHubView from "@/views/InfoHubView.vue"
 import ArticleDetailView from "@/views/ArticleDetailView.vue"
+import ThreadDetailView from "@/views/ThreadDetailView.vue"
 import ForumView from "@/views/ForumView.vue"
 import ResourcesView from "@/views/ResourcesView.vue"
 import HelpUserView from "@/views/HelpUserView.vue"
@@ -15,6 +16,7 @@ const routes = [
   { path: "/InfoHub", name: "InfoHub", component: InfoHubView },
   { path: "/InfoHub/:id", name: "ArticleDetail", component: ArticleDetailView, props: true },
   { path: "/Forum", name: "Forum", component: ForumView },
+  { path: "/Forum/:id", name: "ThreadDetail", component: ThreadDetailView, props: true },
   { path: "/Resources", name: "Resources", component: ResourcesView },
 
   { path: "/insert-mock", name: "InsertMock", component: InsertMockView },

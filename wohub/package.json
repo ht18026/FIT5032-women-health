@@ -14,10 +14,13 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@primevue/themes": "^4.4.1",
     "@sendgrid/mail": "^8.1.6",
     "bootstrap": "^5.3.7",
     "cors": "^2.8.5",
     "firebase": "^12.2.1",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.4.1",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1"
   },
