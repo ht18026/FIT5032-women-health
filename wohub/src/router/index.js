@@ -18,7 +18,8 @@ const routes = [
   { path: "/Forum", name: "Forum", component: ForumView },
   { path: "/Forum/:id", name: "ThreadDetail", component: ThreadDetailView, props: true },
   { path: "/Resources", name: "Resources", component: ResourcesView },
-
+  { path: '/resources/hospitals-map', name: 'hospitals-map', component: () => import('@/views/HospitalsMapView.vue') },
+  
   { path: "/insert-mock", name: "InsertMock", component: InsertMockView },
 
   { path: "/help-user", name: "HelpUser", component: HelpUserView, meta: { role: "user" } },

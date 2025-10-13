@@ -3,26 +3,25 @@ import { ref, onMounted, computed } from "vue";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/firebase/init";
 
-// PrimeVue（局部引入即可）
+// PrimeVue
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 
-// 数据
+// data
 const rows = ref([]);
 const loading = ref(false);
 
-// 全局搜索
+// global search
 const globalFilter = ref("");
 
-// 列级筛选
 const titleFilter = ref("");
 const summaryFilter = ref("");
 const createdFrom = ref(""); // 'YYYY-MM-DD'
 const createdTo = ref("");
 
-// AU/Melbourne 时区格式化
+// AU/Melbourne timezone date formatter
 const fmtAU = new Intl.DateTimeFormat("en-AU", {
   year: "numeric",
   month: "short",
@@ -46,7 +45,6 @@ function formatDateAU(v) {
 onMounted(async () => {
   loading.value = true;
   try {
-    // 若没有 createdAt 字段，可把 orderBy("createdAt","desc") 改成 orderBy("title")
     const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
 
@@ -66,21 +64,17 @@ onMounted(async () => {
   }
 });
 
-// 组合“列级筛选 + 全局搜索”
 const filteredRows = computed(() => {
   let r = rows.value;
 
-  // 列：Title
   if (titleFilter.value) {
     const t = titleFilter.value.toLowerCase();
     r = r.filter(x => (x.title || "").toLowerCase().includes(t));
   }
-  // 列：Summary
   if (summaryFilter.value) {
     const t = summaryFilter.value.toLowerCase();
     r = r.filter(x => (x.summary || "").toLowerCase().includes(t));
   }
-  // 列：Created（日期范围）
   if (createdFrom.value || createdTo.value) {
     const from = createdFrom.value ? new Date(createdFrom.value + "T00:00:00") : null;
     const to = createdTo.value ? new Date(createdTo.value + "T23:59:59") : null;
@@ -93,7 +87,6 @@ const filteredRows = computed(() => {
     });
   }
 
-  // 全局搜索（Title / Summary / Content）
   if (globalFilter.value) {
     const g = globalFilter.value.toLowerCase();
     r = r.filter(x =>
@@ -106,7 +99,6 @@ const filteredRows = computed(() => {
   return r;
 });
 
-// 清空筛选
 function clearFilters() {
   globalFilter.value = "";
   titleFilter.value = "";
@@ -120,7 +112,6 @@ function clearFilters() {
   <div class="container py-4">
     <h2 class="mb-3">InfoHub Articles</h2>
 
-    <!-- 全局搜索 + 清除 -->
     <div class="mb-3" style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
       <i class="pi pi-search" />
       <InputText v-model="globalFilter" placeholder="Global search (title / summary / content)" style="max-width:420px;" />
@@ -138,7 +129,6 @@ function clearFilters() {
       responsiveLayout="scroll"
       class="shadow-sm rounded"
     >
-      <!-- Title（可排序 + 列筛选） -->
       <Column field="title" header="Title" sortable style="min-width:220px;">
         <template #body="{ data }">
           <router-link :to="`/InfoHub/${data.id}`" class="link">{{ data.title }}</router-link>
@@ -148,7 +138,6 @@ function clearFilters() {
         </template>
       </Column>
 
-      <!-- Summary（可排序 + 列筛选） -->
       <Column field="summary" header="Summary" sortable style="min-width:320px;">
         <template #body="{ data }">
           <span>{{ data.summary?.slice(0, 140) || '—' }}<span v-if="data.summary?.length > 140">…</span></span>
@@ -158,7 +147,6 @@ function clearFilters() {
         </template>
       </Column>
 
-      <!-- Created（可排序 + 列筛选：日期范围） -->
       <Column field="createdAtText" header="Created" sortable style="min-width:170px;">
         <template #filter>
           <div style="display:flex;gap:.5rem;align-items:center;">
@@ -169,7 +157,6 @@ function clearFilters() {
         </template>
       </Column>
 
-      <!-- 操作 -->
       <Column header="Action" style="min-width:120px;">
         <template #body="{ data }">
           <router-link :to="`/InfoHub/${data.id}`" class="btn-link">Read</router-link>
