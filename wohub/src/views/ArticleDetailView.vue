@@ -48,6 +48,9 @@ const submitRating = async (score) => {
     submitting.value = false;
   }
 };
+const printArticle = () => {
+  window.print();
+};
 
 onMounted(() => {
   loadArticle();
@@ -57,10 +60,19 @@ onMounted(() => {
 
 <template>
   <div class="container mt-4" v-if="article">
-    <h2>{{ article.title }}</h2>
-    <p>{{ article.content }}</p>
+    <div class="no-print d-flex justify-content-between align-items-center mb-3">
+      <button class="btn btn-outline-secondary" @click="printArticle" aria-label="Export article as PDF via print">
+        🖨️ Export as PDF
+      </button>
+    </div>
+    <section id="print-area">
 
-    <h3>⭐ Average rating: {{ avgRating }}</h3>
+      <h2>{{ article.title }}</h2>
+      <p>{{ article.content }}</p>
+
+      <h3>⭐ Average rating: {{ avgRating }}</h3>
+    </section>
+
     <div>
       <button v-for="n in 5" :key="n" @click="submitRating(n)" :disabled="submitting || cooldown">
         {{ n }} ⭐
