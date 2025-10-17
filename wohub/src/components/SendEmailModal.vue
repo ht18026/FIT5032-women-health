@@ -63,9 +63,9 @@ const onSubmit = async () => {
       payload.filename = fileObj.name;
       payload.mimeType = fileObj.type;
     }
-
+    const FN_SEND_EMAIL = import.meta.env.VITE_FN_SEND_EMAIL;
     const res = await fetch(
-      "https://us-central1-fit5032-wohub.cloudfunctions.net/sendEmail",
+      FN_SEND_EMAIL,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

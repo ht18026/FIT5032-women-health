@@ -35,8 +35,7 @@
 import axios from "axios";
 import { ref } from "vue";
 
-const FN_URL = import.meta.env.VITE_FN_SEND_BULK_EMAIL
-  || "https://us-central1-fit5032-wohub.cloudfunctions.net/sendBulkEmail";
+const FN_URL = import.meta.env.VITE_FN_SEND_BULK_EMAIL;
 
 const to = ref("");
 const subject = ref("WoHub – Version X.Y Update");

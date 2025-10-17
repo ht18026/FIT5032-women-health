@@ -1,0 +1,2 @@
+- overall appearance
+- user types with more options

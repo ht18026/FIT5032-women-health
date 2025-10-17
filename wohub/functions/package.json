@@ -1,16 +1,16 @@
 {
   "name": "functions",
-  "engines": { "node": "20" },
+  "engines": { "node": "18" },
   "main": "index.js",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions:sendEmail",
-    "logs": "firebase functions:log"
+    "logs": "firebase fun`ctions:log"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0",
+    "@sendgrid/mail": "^7.7.0",
     "cors": "^2.8.5",
-    "firebase-admin": "^12.6.0",
+    "firebase-admin": "^12.0.0",
     "firebase-functions": "^5.0.0"
   }
 }
