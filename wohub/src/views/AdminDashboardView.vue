@@ -21,13 +21,20 @@
         <div class="card p-3 kpi-card">
           <div class="card-title d-flex align-items-center justify-content-between mb-2">
             <h5 class="mb-0">Key Stats</h5>
-            <span class="badge bg-secondary">live</span>
+            <span class="badge" :class="kpiLoading ? 'bg-secondary' : 'bg-success'">
+              {{ kpiLoading ? 'loading…' : 'live' }}
+            </span>
           </div>
-          <div class="row row-cols-2 row-cols-md-4 g-3">
-            <div class="col" v-for="n in 4" :key="n">
+
+          <div v-if="kpiError" class="alert alert-warning py-2 px-3 small mb-3">
+            {{ kpiError }}
+          </div>
+
+          <div class="row row-cols-2 row-cols-md-3 g-3">
+            <div class="col" v-for="item in kpis" :key="item.key">
               <div class="kpi card text-center p-3 shadow-sm">
-                <div class="text-uppercase small text-muted">Metric {{ n }}</div>
-                <div class="display-6 fw-semibold">—</div>
+                <div class="text-uppercase small text-muted">{{ item.label }}</div>
+                <div class="display-6 fw-semibold">{{ item.value }}</div>
               </div>
             </div>
           </div>
@@ -86,46 +93,72 @@
 </template>
 
 <script setup>
+/** Components */
 import BulkEmailPanel from "@/components/BulkEmailPanel.vue";
 import SendEmailModal from "@/components/SendEmailModal.vue";
 import ArticleMetricsChart from "@/components/ArticleMetricsChart.vue";
 import UserRolesChart from "@/components/UserRolesChart.vue";
 
 import { Chart } from "chart.js";
-
-const PALETTE = [
-  "#4F46E5", "#06B6D4", "#22C55E", "#EAB308", "#EF4444",
-  "#8B5CF6", "#F97316", "#10B981", "#3B82F6", "#14B8A6",
-];
-
+const PALETTE = ["#4F46E5","#06B6D4","#22C55E","#EAB308","#EF4444","#8B5CF6","#F97316","#10B981","#3B82F6","#14B8A6"];
 const autoPalette = {
   id: "autoPalette",
   beforeUpdate(chart, args, opts) {
     const palette = (opts && opts.palette) || PALETTE;
     chart.data?.datasets?.forEach((ds) => {
       const len = Array.isArray(ds.data) ? ds.data.length : 0;
-
-      const hasColors =
-        !!ds.backgroundColor &&
+      const hasColors = !!ds.backgroundColor &&
         (!Array.isArray(ds.backgroundColor) || ds.backgroundColor.length > 0);
-
-      if (!hasColors) {
-        ds.backgroundColor = palette.slice(0, len);
-      }
-      if (!ds.borderColor) {
-        ds.borderColor = palette.slice(0, len);
-      }
+      if (!hasColors) ds.backgroundColor = palette.slice(0, len);
+      if (!ds.borderColor) ds.borderColor = palette.slice(0, len);
       if (ds.borderWidth === undefined) ds.borderWidth = 1;
     });
   },
 };
-
 if (!Chart.registry.plugins.get("autoPalette")) {
   Chart.register(autoPalette);
   Chart.defaults.plugins.autoPalette = { palette: PALETTE };
-  Chart.defaults.font.family = `'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"`;
-  Chart.defaults.color = "#334155"; 
+  Chart.defaults.font.family =
+    `'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"`;
+  Chart.defaults.color = "#334155";
 }
+
+/** KPI （Threads / Articles / Users） */
+import { ref, onMounted } from "vue";
+import { db } from "@/firebase/init";
+import { collection, query, getCountFromServer } from "firebase/firestore";
+
+const kpiLoading = ref(true);
+const kpiError = ref("");
+const kpis = ref([
+  { key: "threads",  label: "Total Threads",  value: "—" },
+  { key: "articles", label: "Total Articles", value: "—" },
+  { key: "users",    label: "Total Users",    value: "—" },
+]);
+
+async function loadKpis() {
+  kpiLoading.value = true;
+  kpiError.value = "";
+  try {
+    const [thrSnap, artSnap, usrSnap] = await Promise.all([
+      getCountFromServer(query(collection(db, "threads"))),
+      getCountFromServer(query(collection(db, "articles"))),
+      getCountFromServer(query(collection(db, "users"))),
+    ]);
+    kpis.value = [
+      { key: "threads",  label: "Total Threads",  value: (thrSnap.data().count || 0).toLocaleString() },
+      { key: "articles", label: "Total Articles", value: (artSnap.data().count || 0).toLocaleString() },
+      { key: "users",    label: "Total Users",    value: (usrSnap.data().count || 0).toLocaleString() },
+    ];
+  } catch (e) {
+    console.error(e);
+    kpiError.value = e?.message || "Failed to load KPIs";
+  } finally {
+    kpiLoading.value = false;
+  }
+}
+
+onMounted(loadKpis);
 </script>
 
 <style scoped>
