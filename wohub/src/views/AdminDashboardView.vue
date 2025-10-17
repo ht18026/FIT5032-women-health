@@ -61,41 +61,41 @@
       </div>
     </div>
 
-    <!-- Email section -->
-    <div id="email" class="row g-3">
-      <!-- Right column: sticky email tools -->
-      <div class="col-lg-4 order-lg-2">
-        <div class="position-sticky" style="top: 1rem;">
-          <!-- <div class="card p-3 mb-3 shadow-sm">
-            <h5 class="mb-2">Quick Send</h5>
-            <SendEmailModal />
-          </div> -->
-          <div class="card p-3 shadow-sm">
-            <h5 class="mb-2">Quick Send</h5>
-            <BulkEmailPanel />
-          </div>
-        </div>
-      </div>
-
-      <!-- Left column: space for notes / future widgets -->
-      <div class="col-lg-8 order-lg-1">
-        <div class="card p-4 h-100 shadow-sm">
-          <h5 class="mb-2">Notes</h5>
-          <ul class="mb-0 small text-muted">
-            <li>Use Bulk Email to send version updates to multiple recipients.</li>
-            <li>Stats show KPI cards and interactive charts.</li>
-            <li>You can add role filters or date ranges later.</li>
-          </ul>
+  <!-- Email section -->
+  <div id="email" class="row g-3">
+    <!-- Right column: sticky email tools -->
+    <div class="col-lg-7 col-xl-8 order-lg-2">
+      <div class="position-sticky" style="top: 1rem;">
+        <!-- <div class="card p-3 mb-3 shadow-sm">
+        <h5 class="mb-2">Quick Send</h5>
+        <SendEmailModal />
+      </div> -->
+        <div class="card p-3 shadow-sm">
+          <h5 class="mb-2">Quick Send</h5>
+          <BulkEmailPanel />
         </div>
       </div>
     </div>
+
+    <!-- Left column: space for notes / future widgets -->
+    <div class="col-lg-5 col-xl-4 order-lg-1">
+      <div class="card p-4 h-100 shadow-sm">
+        <h5 class="mb-2">Notes</h5>
+        <ul class="mb-0 small text-muted">
+          <li>Use Bulk Email to send version updates to multiple recipients.</li>
+          <li>Stats show KPI cards and interactive charts.</li>
+          <li>You can add role filters or date ranges later.</li>
+        </ul>
+      </div>
+    </div>
   </div>
+</div>
 </template>
 
 <script setup>
 /** Components */
 import BulkEmailPanel from "@/components/BulkEmailPanel.vue";
-import SendEmailModal from "@/components/SendEmailModal.vue";
+// import SendEmailModal from "@/components/SendEmailModal.vue";
 import ArticleMetricsChart from "@/components/ArticleMetricsChart.vue";
 import UserRolesChart from "@/components/UserRolesChart.vue";
 
