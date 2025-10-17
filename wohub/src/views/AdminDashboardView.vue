@@ -25,6 +25,16 @@
               {{ kpiLoading ? 'loading…' : 'live' }}
             </span>
           </div>
+          <div class="ms-auto btn-group">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+            Export CSV
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item" @click="exportKpis">KPI Summary</button></li>
+              <li><button class="dropdown-item" @click="exportUserRoles">User Roles</button></li>
+              <li><button class="dropdown-item" @click="exportArticles">Articles (title/views/rating)</button></li>
+            </ul>
+          </div>
 
           <div v-if="kpiError" class="alert alert-warning py-2 px-3 small mb-3">
             {{ kpiError }}
@@ -101,6 +111,15 @@ import ArticleMetricsChart from "@/components/ArticleMetricsChart.vue";
 import UserRolesChart from "@/components/UserRolesChart.vue";
 
 import { Chart } from "chart.js";
+import { downloadCSV, dateStamp } from "@/lib/csvExport";
+
+function tsToISO(ts) {
+  if (!ts) return "";
+  if (typeof ts.toDate === "function") return ts.toDate().toISOString();
+  if (typeof ts.seconds === "number") return new Date(ts.seconds * 1000).toISOString();
+  return "";
+}
+
 const PALETTE = ["#4F46E5","#06B6D4","#22C55E","#EAB308","#EF4444","#8B5CF6","#F97316","#10B981","#3B82F6","#14B8A6"];
 const autoPalette = {
   id: "autoPalette",
@@ -127,7 +146,7 @@ if (!Chart.registry.plugins.get("autoPalette")) {
 /** KPI （Threads / Articles / Users） */
 import { ref, onMounted } from "vue";
 import { db } from "@/firebase/init";
-import { collection, query, getCountFromServer } from "firebase/firestore";
+import { collection, query, getCountFromServer, getDocs } from "firebase/firestore";
 import SendEmailModal from "@/components/SendEmailModal.vue";
 
 const kpiLoading = ref(true);
@@ -161,6 +180,60 @@ async function loadKpis() {
 }
 
 onMounted(loadKpis);
+// 1) kpi csv
+const exportKpis = () => {
+  const rows = kpis.value.map(x => ({ metric: x.label, value: x.value }));
+  downloadCSV(`kpis_${dateStamp()}.csv`, rows, [
+    { key: "metric", label: "Metric" },
+    { key: "value",  label: "Value"  },
+  ]);
+};
+
+// 2) user role csv
+import firebaseApp from "@/firebase/init";
+import { getFunctions, httpsCallable } from "firebase/functions";
+const fns = getFunctions(firebaseApp, "us-central1");
+const getUserCounts = httpsCallable(fns, "getUserCounts");
+const exportUserRoles = async () => {
+  try {
+    const { data } = await getUserCounts(); 
+    const counts = data?.userCounts || {};
+    const rows = Object.entries(counts).map(([role, count]) => ({ role, count }));
+    downloadCSV(`user_roles_${dateStamp()}.csv`, rows, [
+      { key: "role",  label: "Role"  },
+      { key: "count", label: "Count" },
+    ]);
+  } catch (e) {
+    alert("Export failed: " + (e?.message || "getUserCounts error"));
+  }
+};
+
+// 3) export articles csv
+const exportArticles = async () => {
+  try {
+    const snap = await getDocs(collection(db, "articles"));
+    const rows = snap.docs.map(d => {
+      const x = d.data() || {};
+      return {
+        id: d.id,
+        title: x.title || d.id,
+        views: typeof x.views === "number" ? x.views : "",
+        ratingAvg: typeof x.ratingAvg === "number" ? x.ratingAvg : "",
+        createdAt: tsToISO(x.createdAt),
+      };
+    });
+    downloadCSV(`articles_${dateStamp()}.csv`, rows, [
+      { key: "id",        label: "ID" },
+      { key: "title",     label: "Title" },
+      { key: "views",     label: "Views" },
+      { key: "ratingAvg", label: "RatingAvg" },
+      { key: "createdAt", label: "CreatedAt" },
+    ]);
+  } catch (e) {
+    alert("Export failed: " + (e?.message || "articles read error"));
+  }
+};
+
 </script>
 
 <style scoped>
