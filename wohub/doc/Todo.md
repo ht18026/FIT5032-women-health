@@ -6,3 +6,4 @@
 - add more csv/pdf output
 - notes get from online
 - public api
+- my location fix

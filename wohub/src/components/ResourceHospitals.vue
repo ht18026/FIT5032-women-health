@@ -25,7 +25,7 @@ function kmBetween(a, b) {
   return 2 * R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s))
 }
 
-// —— component state ——
+// —— component state —— 
 const mapEl = ref(null)
 let map
 let routeSourceAdded = false
@@ -34,7 +34,9 @@ const entries = ref(HOSPITALS.map(e => ({ ...e, lnglat: null, marker: null })))
 const radiusKm = ref(10)
 const userPoint = ref(null)        // [lng, lat]
 let userMarker = null
-const originText = ref('')         // optional text input for origin
+const originText = ref('')        
+const geoError = ref('')           
+const pendingUserPoint = ref(null)
 
 const geocode = async (text) => {
   const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(text)}.json?access_token=${mapboxgl.accessToken}&limit=1&country=AU`
@@ -51,7 +53,10 @@ const filtered = computed(() => {
 
 function setUserPoint(lnglat) {
   userPoint.value = lnglat
-  if (!map) return
+  if (!map) {                      
+    pendingUserPoint.value = lnglat
+    return
+  }
   if (userMarker) userMarker.remove()
   userMarker = new mapboxgl.Marker({ color: '#000' })
     .setLngLat(lnglat)
@@ -155,13 +160,6 @@ async function init() {
     zoom: 10
   })
 
-  // get explorer location
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setUserPoint([pos.coords.longitude, pos.coords.latitude]),
-      () => {}
-    )
-  }
 
   // encode all hospital addresses
   for (const e of entries.value) {
@@ -169,13 +167,48 @@ async function init() {
     if (e.lnglat) addMarker(e)
   }
   updateMarkerVisibility()
+
+  if (pendingUserPoint.value) {
+    setUserPoint(pendingUserPoint.value)
+    pendingUserPoint.value = null
+  }
 }
 
 onMounted(init)
 onBeforeUnmount(() => { try { map?.remove() } catch {} })
 
+function requestMyLocation() {
+  geoError.value = ''
+
+  if (!window.isSecureContext) {
+    geoError.value = 'Location requires HTTPS or localhost. Please use https:// or allow location in browser settings.'
+    return
+  }
+  if (!('geolocation' in navigator)) {
+    geoError.value = 'Geolocation is not supported by this browser.'
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (p) => setUserPoint([p.coords.longitude, p.coords.latitude]),
+    (err) => {
+      if (err?.code === err.PERMISSION_DENIED) {
+        geoError.value = 'Location permission denied. You can type your origin or allow location in the browser site settings.'
+      } else if (err?.code === err.POSITION_UNAVAILABLE) {
+        geoError.value = 'Location unavailable. Try again later or type an address.'
+      } else if (err?.code === err.TIMEOUT) {
+        geoError.value = 'Location timed out. Try again.'
+      } else {
+        geoError.value = 'Failed to get location.'
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+  )
+}
+
 // UI events
 async function useOriginText() {
+  geoError.value = ''
   if (!originText.value) return
   const g = await geocode(originText.value)
   if (g) setUserPoint(g)
@@ -186,11 +219,12 @@ async function useOriginText() {
   <main class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-2">Women’s Hospitals around Melbourne</h1>
 
-    <div class="flex flex-wrap items-center gap-3 mb-3">
+    <div class="flex flex-wrap items-center gap-3 mb-2">
       <label for="origin" class="sr-only">Origin</label>
       <input id="origin" class="border rounded px-2 py-1" v-model="originText" placeholder="Enter your origin (address/suburb)"/>
       <button class="px-3 py-1 rounded border" @click="useOriginText">Set origin</button>
-      <button class="px-3 py-1 rounded border" @click="navigator.geolocation && navigator.geolocation.getCurrentPosition(p => setUserPoint([p.coords.longitude,p.coords.latitude]))">
+
+      <button class="px-3 py-1 rounded border" @click="requestMyLocation">
         My location
       </button>
 
@@ -198,6 +232,9 @@ async function useOriginText() {
       <input id="radius" type="range" min="2" max="50" step="1" v-model.number="radiusKm" @input="updateMarkerVisibility"/>
       <span>{{ radiusKm }} km</span>
     </div>
+
+    <!-- read screen friendly -->
+    <p v-if="geoError" role="alert" class="text-sm text-red-600 mb-2">{{ geoError }}</p>
 
     <div ref="mapEl" role="region" aria-label="Interactive map of women's hospitals" style="height: 65vh;"></div>
 
