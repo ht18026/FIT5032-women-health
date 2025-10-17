@@ -1,6 +1,16 @@
 <template>
   <div class="p-4 rounded-xl shadow">
     <h3 class="text-xl font-semibold mb-3">Send Email</h3>
+
+    <!-- 🔹 AI 草稿（纯文本） -->
+    <div class="mb-3">
+      <AIDraftButton
+        v-model:subject="form.subject"
+        v-model:body="form.text"
+        format="text"
+      />
+    </div>
+
     <form @submit.prevent="onSubmit">
       <div class="mb-2">
         <label>To</label>
@@ -27,6 +37,7 @@
 
 <script setup>
 import { ref } from "vue";
+import AIDraftButton from "@/components/AIDraftButton.vue";
 
 const form = ref({ to: "", subject: "", text: "" });
 const loading = ref(false);
@@ -39,11 +50,7 @@ const pickFile = (e) => {
 const toBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const s = reader.result;
-      // remove data:*;base64, prefix
-      resolve(String(s).split(",").pop());
-    };
+    reader.onload = () => resolve(String(reader.result).split(",").pop());
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -64,14 +71,11 @@ const onSubmit = async () => {
       payload.mimeType = fileObj.type;
     }
     const FN_SEND_EMAIL = import.meta.env.VITE_FN_SEND_EMAIL;
-    const res = await fetch(
-      FN_SEND_EMAIL,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const res = await fetch(FN_SEND_EMAIL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || "Failed");
     alert("✅ Email sent!");

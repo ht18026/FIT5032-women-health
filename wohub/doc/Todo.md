@@ -2,3 +2,4 @@
 - user types with more options
 - more key KPI indicators in admin dashboard
 - bulk select all user
+- fix chart interaction

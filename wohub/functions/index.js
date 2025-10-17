@@ -175,3 +175,72 @@ exports.getUserCounts = functions.region(REGION).https.onCall(async (data, conte
   });
   return { userCounts: counts };
 });
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+exports.genaiText = functions.region(REGION).https.onRequest(async (req, res) => {
+  if (req.method === "OPTIONS") { allowCors(req, res); return res.status(204).send(""); }
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+  allowCors(req, res);
+
+  try {
+    const GEMINI_KEY = cfg?.gemini?.key;
+    if (!GEMINI_KEY) return res.status(500).json({ ok: false, error: "GEMINI key not configured" });
+
+    const {
+      prompt,           // string
+      system,           // string
+      history = [],     
+      model = "gemini-2.0-flash", 
+      temperature = 0.3,
+      maxOutputTokens = 1024,
+      jsonSchema = null 
+    } = req.body || {};
+
+    if (!prompt || typeof prompt !== "string") {
+      return res.status(400).json({ ok: false, error: "Missing 'prompt'." });
+    }
+
+    const genAI = new GoogleGenerativeAI(GEMINI_KEY);
+
+    const modelOpts = { model };
+    if (system) modelOpts.systemInstruction = system;
+
+    const gModel = genAI.getGenerativeModel(modelOpts);
+
+    const contents = [];
+    if (Array.isArray(history)) {
+      for (const h of history) {
+        const r = (h.role === "model" || h.role === "assistant") ? "model" : "user";
+        const t = (h.text ?? h.content ?? "").toString();
+        if (t) contents.push({ role: r, parts: [{ text: t }] });
+      }
+    }
+    contents.push({ role: "user", parts: [{ text: prompt }] });
+
+    const generationConfig = {
+      temperature,
+      maxOutputTokens,
+    };
+
+    
+    if (jsonSchema && typeof jsonSchema === "object") {
+      generationConfig.responseMimeType = "application/json";
+      generationConfig.responseSchema   = jsonSchema;
+    }
+
+    const result = await gModel.generateContent({ contents, generationConfig });
+    const response = result?.response || result;
+    const text = typeof response.text === "function" ? response.text() : response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    return res.json({
+      ok: true,
+      model,
+      text,
+      usage: response?.usageMetadata || undefined,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ ok: false, error: e?.message || "GenAI error" });
+  }
+});

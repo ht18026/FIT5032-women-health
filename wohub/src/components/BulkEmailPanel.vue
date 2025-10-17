@@ -1,6 +1,15 @@
 <template>
   <div class="card p-3">
-    <h5>Bulk Email (version update)</h5>
+    <h5>Bulk Email</h5>
+
+    <!-- 🔹 AI draft -->
+    <div class="mb-3">
+      <AIDraftButton
+        v-model:subject="subject"
+        v-model:body="html"
+        format="html"
+      />
+    </div>
 
     <div class="mb-2">
       <label class="form-label">Recipients (comma-separated)</label>
@@ -34,6 +43,7 @@
 <script setup>
 import axios from "axios";
 import { ref } from "vue";
+import AIDraftButton from "@/components/AIDraftButton.vue";
 
 const FN_URL = import.meta.env.VITE_FN_SEND_BULK_EMAIL;
 

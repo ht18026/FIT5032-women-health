@@ -66,12 +66,12 @@
       <!-- Right column: sticky email tools -->
       <div class="col-lg-4 order-lg-2">
         <div class="position-sticky" style="top: 1rem;">
-          <div class="card p-3 mb-3 shadow-sm">
+          <!-- <div class="card p-3 mb-3 shadow-sm">
             <h5 class="mb-2">Quick Send</h5>
             <SendEmailModal />
-          </div>
+          </div> -->
           <div class="card p-3 shadow-sm">
-            <h5 class="mb-2">Bulk Email</h5>
+            <h5 class="mb-2">Quick Send</h5>
             <BulkEmailPanel />
           </div>
         </div>
