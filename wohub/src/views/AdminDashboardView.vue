@@ -73,6 +73,7 @@
         <div class="card p-3 shadow-sm">
           <h5 class="mb-2">Quick Send</h5>
           <BulkEmailPanel />
+          <!-- <SendEmailModal /> -->
         </div>
       </div>
     </div>
@@ -127,6 +128,7 @@ if (!Chart.registry.plugins.get("autoPalette")) {
 import { ref, onMounted } from "vue";
 import { db } from "@/firebase/init";
 import { collection, query, getCountFromServer } from "firebase/firestore";
+import SendEmailModal from "@/components/SendEmailModal.vue";
 
 const kpiLoading = ref(true);
 const kpiError = ref("");
